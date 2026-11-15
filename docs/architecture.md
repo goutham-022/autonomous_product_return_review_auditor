@@ -19,19 +19,24 @@ The platform faces three major operational vulnerabilities:
 
 ---
 
-## 2. High-Level System Architecture Diagram
+## 2. High-Level System Architecture Diagram (Microservices Blueprint)
+
+The platform is designed as a **decoupled 3-tier microservice architecture**, providing independent scaling, strict security boundaries, and native Kubernetes readiness:
+
+- **Microservice 1 (Agent & Ingestion Service - Port 8000):** FastAPI webhook ingestion, LangGraph 4-desk state machine, prompt injection defenses, and audit synthesis.
+- **Microservice 2 (Tool & Data MCP Service - Port 8001):** Standalone FastMCP microservice exposing safe Text-to-SQL AST execution, pgvector similarity search, and decision logging.
+- **Microservice 3 (Persistence & Vector Service - Port 5434/5432):** PostgreSQL 16 container with `pgvector` extension for relational records and HNSW vector embeddings.
 
 ### Visual Architectural Blueprint (ASCII Flow)
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   1. INGESTION LAYER                                    │
+│                      MICROSERVICE 1: AGENT & INGESTION SERVICE (PORT 8000)              │
+│                                                                                         │
 │   [Customer Return Claim] ────────► [FastAPI Webhook: POST /api/v1/returns/audit]       │
-└───────────────────────────────────────────────────┬─────────────────────────────────────┘
-                                                    │
-                                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                    2. LANGGRAPH MULTI-AGENT STATE MACHINE (MCP CLIENT)                  │
+│                                                   │                                     │
+│                                                   ▼                                     │
+│                    LANGGRAPH MULTI-AGENT STATE MACHINE (MCP CLIENT)                     │
 │                                                                                         │
 │   ┌─────────────────────┐      ┌─────────────────────┐      ┌───────────────────────┐   │
 │   │   Desk 1: Order     │      │   Desk 2: Policy    │      │    Desk 3: Review     │   │
@@ -44,28 +49,31 @@ The platform faces three major operational vulnerabilities:
 │                                                             │    Desk 4: Decision   │   │
 │                                                             │    Synthesizer Node   │   │
 │                                                             └───────────┬───────────┘   │
-└─────────────────────────────────────────────────────────────────────────┼───────────────┘
-                                                                          │
-                                                                          ▼
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                     3. DETERMINISTIC PYTHON HARD GATES (NO LLM OVERRIDES)               │
+│                                                                         │               │
+│                                                                         ▼               │
+│                     DETERMINISTIC PYTHON HARD GATES (NO LLM OVERRIDES)                  │
 │   [Gate 1: Order-ID Scoping] ──► [Gate 2: Max Cap Rs 5000] ──► [Gate 3: AST Read-Only]   │
-└───────────────────────────────────────────────────┬─────────────────────────────────────┘
-                                                    │
-                                                    ▼
+└───────────────────────────────────────────┬─────────────────────────────────────────────┘
+                                            │
+                                            │ MCP Transport: HTTP / SSE (Port 8001)
+                                            ▼
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   4. FINAL DECISION ACTIONS                             │
-│   [1] APPROVE_INSTANT_REFUND     [2] APPROVE_REPLACEMENT_ONLY   [3] REQUEST_PHOTO_PROOF│
-│   [4] ESCALATE_TO_HUMAN_AGENT    [5] REJECT_OUT_OF_POLICY                               │
-└───────────────────────────────────────────────────▲─────────────────────────────────────┘
-                                                    │ Tool Invocations over JSON-RPC 2.0
-                                                    ▼
+│                      MICROSERVICE 2: CARTNEST MCP TOOL SERVER (PORT 8001)               │
+│                                                                                         │
+│   [MCP Tools: query_order_db | search_policy_docs | get_review_defects | submit_audit]  │
+│   ├── SQLGlot AST Safety Parser & Table Whitelist Verification                          │
+│   ├── pgvector Cosine Search Handler & Defect Ratio Calculator                          │
+│   └── Immutable Audit Trail Logging Engine                                              │
+└───────────────────────────────────────────┬─────────────────────────────────────────────┘
+                                            │
+                                            │ Native PostgreSQL Connection (Port 5434 / 5432)
+                                            ▼
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                          5. CARTNEST MCP SERVER & ENTERPRISE STORES                     │
-│   Tools: query_order_db | search_policy_docs | get_product_review_defects | submit_audit│
-│   ├── Unified DB (PostgreSQL + pgvector): customers, products, orders, returns          │
-│   │   └── Vector Embeddings: policy_chunks (HNSW index) & product_reviews (SKU filtered)│
-│   └── Audit Trail Store: immutable decision logs & inspect_ai ground truth              │
+│                      MICROSERVICE 3: POSTGRESQL + PGVECTOR CLUSTER                      │
+│                                                                                         │
+│   ├── Relational Tables: customers, products, orders, returns                           │
+│   ├── Vector Columns: policy_chunks (HNSW index) & product_reviews (SKU filtered)      │
+│   └── Persistent Docker Volume: postgres_data                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -74,35 +82,42 @@ The platform faces three major operational vulnerabilities:
 
 ```mermaid
 flowchart TD
-    %% 1. Ingestion Layer
-    subgraph Ingestion["1. Ingestion Layer"]
+    %% Microservice 1
+    subgraph Microservice1["Microservice 1: Agent & Ingestion Service (Port 8000)"]
         Claim["Customer Return Request<br/>(order_id, product_id, reason)"]
         API["FastAPI Webhook<br/>POST /api/v1/returns/audit"]
-        Claim --> API
-    end
-
-    %% 2. LangGraph State Machine
-    subgraph MultiAgent["2. LangGraph State Machine (MCP Client)"]
+        
         Desk1["Desk 1: Order Verifier Node"]
         Desk2["Desk 2: Policy Auditor Node"]
         Desk3["Desk 3: Review Miner Node"]
         Desk4["Desk 4: Decision Synthesizer Node"]
+        
+        SafetyGates["Deterministic Python Hard Gates<br/>(Order-ID Scoping, Rs 5,000 Cap, AST Check)"]
 
+        Claim --> API
+        API --> Desk1
         Desk1 --> Desk2
         Desk2 --> Desk3
         Desk3 --> Desk4
+        Desk4 --> SafetyGates
     end
 
-    %% 3. Safety Gates
-    subgraph SafetyGates["3. Deterministic Python Safety Gates"]
-        Gate1["Gate 1: Order-ID Scoping"]
-        Gate2["Gate 2: Max Refund Cap Rs 5000"]
-        Gate3["Gate 3: SQLGlot AST Read-Only Check"]
-        Gate1 --> Gate2 --> Gate3
+    %% Microservice 2
+    subgraph Microservice2["Microservice 2: CartNest MCP Tool Server (Port 8001)"]
+        MCPServer["FastMCP Tool Microservice<br/>- query_order_db<br/>- search_policy_docs<br/>- get_product_review_defects<br/>- submit_decision_audit"]
     end
 
-    %% 4. Decisions
-    subgraph Decisions["4. Audited Decision Actions"]
+    %% Microservice 3
+    subgraph Microservice3["Microservice 3: PostgreSQL + pgvector Cluster (Port 5434)"]
+        SQLDB[("PostgreSQL 16 Relational Tables")]
+        VectorDB[("pgvector HNSW Embeddings")]
+        AuditDB[("Immutable Audit Trail")]
+
+        SQLDB --- VectorDB --- AuditDB
+    end
+
+    %% Decisions
+    subgraph Decisions["Audited Decisions Output"]
         DecisionTree{"Decision Router"}
         D1["APPROVE_INSTANT_REFUND"]
         D2["APPROVE_REPLACEMENT_ONLY"]
@@ -110,6 +125,7 @@ flowchart TD
         D4["ESCALATE_TO_HUMAN_AGENT"]
         D5["REJECT_OUT_OF_POLICY"]
 
+        SafetyGates --> DecisionTree
         DecisionTree --> D1
         DecisionTree --> D2
         DecisionTree --> D3
@@ -117,25 +133,9 @@ flowchart TD
         DecisionTree --> D5
     end
 
-    %% 5. MCP Server and Storage
-    subgraph Tooling["5. MCP Server and Storage Layer"]
-        MCPServer["CartNest MCP Server<br/>(JSON-RPC 2.0 Tools)"]
-        PostgresDB[("Unified Database<br/>PostgreSQL + pgvector")]
-        AuditDB[("Audit Trail Storage")]
-
-        MCPServer --> PostgresDB
-        MCPServer --> AuditDB
-    end
-
-    %% Node to Node Connections
-    API --> Desk1
-    Desk4 --> Gate1
-    Gate3 --> DecisionTree
-
-    Desk1 -.->|"query_order_db"| MCPServer
-    Desk2 -.->|"search_policy_docs"| MCPServer
-    Desk3 -.->|"get_product_review_defects"| MCPServer
-    Desk4 -.->|"submit_decision_audit"| MCPServer
+    %% Inter-service networking
+    Microservice1 -.->|"MCP JSON-RPC / SSE (Port 8001)"| MCPServer
+    MCPServer -->|"SQL / pgvector Queries (Port 5434)"| Microservice3
 ```
 
 </details>

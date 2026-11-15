@@ -4,7 +4,7 @@
 **Start Date:** 2026-11-13  
 **Core Target Completion (34 Days):** 2026-12-16  
 **Final Target with 7-Day Buffer (41 Days):** **2026-12-23**  
-**Current Status:** 🔄 Step 0 (Architecture & Workspace Setup)
+**Current Status:** 🔄 Step 2 (Relational DB Models & Safe Text-to-SQL Engine - Ahead of Schedule)
 
 ---
 
@@ -12,9 +12,9 @@
 
 | Step | Milestone Name | Day Window | Target Dates | Est. Hours | Status |
 | :--- | :--- | :--- | :--- | :---: | :---: |
-| **Step 0** | Architecture Blueprint, Safety Specs & Tooling Scaffolding | Days 1–3 | Nov 13 – Nov 15 | 3.0 hrs | 🔄 In Progress |
-| **Step 1** | PostgreSQL & pgvector Infrastructure (`docker-compose.yml`) | Day 4 | Nov 16 | 1.0 hr | ⏳ Not Started |
-| **Step 2** | Relational DB Models, Seed Data & Safe Text-to-SQL (AST) | Days 5–8 | Nov 17 – Nov 20 | 4.0 hrs | ⏳ Not Started |
+| **Step 0** | Architecture Blueprint, Safety Specs & Tooling Scaffolding | Days 1–3 | Nov 13 – Nov 15 | 3.0 hrs | ✅ Completed |
+| **Step 1** | PostgreSQL & pgvector Infrastructure (`docker-compose.yml`) | Day 4 | Nov 15 | 1.0 hr | ✅ Completed |
+| **Step 2** | Relational DB Models, Seed Data & Safe Text-to-SQL (AST) | Days 5–8 | Nov 15 – Nov 20 | 4.0 hrs | 🔄 In Progress |
 | **Step 3** | Hybrid RAG Engine, Policy Ingestion & Review Defect Miner | Days 9–13 | Nov 21 – Nov 25 | 5.0 hrs | ⏳ Not Started |
 | **Step 4** | Model Context Protocol (MCP) Server & Inspector Evals | Days 14–17 | Nov 26 – Nov 29 | 4.0 hrs | ⏳ Not Started |
 | **Step 5** | LangGraph Multi-Agent State Machine, Guardrails & `inspect_ai` | Days 18–26 | Nov 30 – Dec 08 | 9.0 hrs | ⏳ Not Started |
@@ -31,14 +31,15 @@
 ### Step 0: Architecture Blueprint, Safety Specs & Tooling (Days 1–3)
 - [x] **M0.1**: Engineering Design Document & ASCII Blueprint (`docs/architecture.md`) ✅ (2026-11-15)
 - [x] **M0.2**: Anthropic Fellow AI Safety Guardrails Specification (`inspect_ai` alignment) ✅ (2026-11-15)
-- [ ] **M0.3**: Python Virtual Environment Setup with `uv` and lockfile dependencies
-- [ ] **M0.4**: Git Repository Initialization, `.gitignore`, and Feature Branch Scaffolding
+- [x] **M0.3**: Python Virtual Environment Setup with `uv` and lockfile dependencies ✅ (2026-11-15)
+- [x] **M0.4**: Git Repository Initialization, `.gitignore`, and Feature Branch Scaffolding ✅ (2026-11-15)
 
 ### Step 1: Docker-Compose & Database Infrastructure (Day 4)
-- [ ] **M1.1**: Stand up isolated PostgreSQL service with local volume persistence and health checks.
+- [x] **M1.1**: Stand up isolated PostgreSQL service with local volume persistence and health checks (`docker-compose.yaml` on port 5434) ✅ (2026-11-15)
 - [ ] **M1.2**: Configure dedicated read-only database user credentials for AST safety layer.
 
 ### Step 2: Relational DB & Safe Text-to-SQL Engine (Days 5–8)
+- [x] **M2.0**: Enterprise Configuration & Secrets Management (`src/utils/configs.py` via Pydantic `BaseSettings`) ✅ (2026-11-15)
 - [ ] **M2.1**: Implement lean 4-table SQLAlchemy models (`customers`, `products`, `orders`, `returns`).
 - [ ] **M2.2**: Generate realistic synthetic e-commerce seed data (VIP customers, serial returners, batch defects).
 - [ ] **M2.3**: Build Text-to-SQL engine with `sqlglot` AST validation (read-only enforcement, table whitelisting, limit injection).
@@ -81,3 +82,4 @@
 - **2026-11-13 (Day 1)**: Problem scoping with client *CartNest*. Core boundaries established for SQL, RAG, and MCP.
 - **2026-11-14 (Day 2)**: First-principles deconstruction of Tools, MCP vs REST APIs, and MCP Inspector.
 - **2026-11-15 (Day 3)**: Co-designed 4-desk LangGraph waterfall, decision actions, and AI Safety specifications for `inspect_ai`. Fixed architecture visual preview with ASCII diagram. M0.1 and M0.2 completed.
+- **2026-11-15 (Day 4)**: Initialized `uv` virtual environment and dependency lockfile. Authored `docker-compose.yaml` with PostgreSQL 16 + pgvector container (`product_return_review_db` on port 5434). Implemented Pydantic v2 `BaseSettings` schema in `src/utils/configs.py` with fail-fast validation and type-safe casting. Configured `[tool.uv] package = false` for application execution mode. M0.3, M0.4, M1.1, and M2.0 completed ahead of schedule.
