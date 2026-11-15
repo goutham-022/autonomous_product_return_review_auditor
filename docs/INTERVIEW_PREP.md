@@ -1,0 +1,21 @@
+# Forward Deployed Engineer (FDE) & Staff GenAI Interview Prep Guide
+
+**Project:** Autonomous Product Return & Review Auditor  
+**Format:** Question | High-Impact Answer | Real-World Scenario  
+
+---
+
+## Daily Interview Vault
+
+| # | Interview Question | High-Impact Answer (FDE Style) | Scenario / Where to Use |
+| :---: | :--- | :--- | :--- |
+| **1** | **Why can't we just index customer purchase history into a Vector DB and use semantic search to check if a return is valid?** | *"Vector databases measure semantic similarity (angles between concepts in vector space). They cannot perform exact relational algebra, temporal date arithmetic (`delivery_date + 30 days <= NOW()`), aggregations (`COUNT`, `SUM`), or foreign-key joins. Using RAG on transactional data leads to hallucinations; SQL provides 100% deterministic mathematical proof."* | When an interviewer or client suggests using a Vector DB / RAG for transactional, order, or financial ledger data. |
+| **2** | **Why build a Model Context Protocol (MCP) Server instead of writing custom Python functions with `@tool` decorators?** | *"MCP is the open 'USB-C standard' for AI tools. It decouples the tool layer from the model, eliminating vendor lock-in (we can switch between Claude, OpenAI, Gemini, or local Llama without rewriting tools). Crucially, it creates a hard security boundary: DB credentials stay isolated inside the MCP server process rather than living in the LLM runtime."* | When asked how to architect enterprise-grade, secure, multi-model tool platforms without vendor lock-in. |
+| **3** | **Why does fixed-character chunking fail on legal/policy documents, and how do you solve it in production?** | *"Fixed-character chunking (e.g., every 500 chars) arbitrarily splits sentences and separates general rules from their exception clauses (e.g., separating a '30-day window' rule from its '1-year warranty defect' exception). Production RAG requires structural/header-based chunking with rich metadata tags (`category`, `section_id`, `sku_scope`) to keep clauses intact."* | When designing RAG ingestion pipelines for complex legal policies, SLAs, or technical documentation. |
+| **4** | **How do you use RAG and customer reviews to separate genuine product defects from customer return fraud?** | *"We filter reviews by SKU, run semantic search against the customer's claimed defect reason (e.g., 'charging port failure'), and compute a Defect Ratio: `(Matching Defect Reviews ÷ Total SKU Reviews)`. If the ratio exceeds an anomaly threshold (e.g., >15%), crowd consensus proves a systemic batch defect, which lowers the customer's fraud risk score and justifies a policy exception."* | When explaining how to ground multi-agent fraud detection systems with real-world crowd sentiment signals. |
+| **5** | **Under the hood, how does an LLM actually execute a tool or Python function?** | *"An LLM cannot execute code; it is purely a text predictor. The orchestrator passes the user's message along with a JSON 'menu' of available tool descriptions and parameters. The LLM predicts which tool to select and extracts the required arguments. The orchestrator intercepts that JSON response, executes the actual code/DB query, and feeds the result back to the LLM to formulate the final answer."* | When an interviewer tests your first-principles understanding of function calling mechanics and agent loops. |
+| **6** | **If we are not using off-the-shelf consumer AI apps (like Claude Desktop) and are building our own custom AI app, why use MCP?** | *"Even for custom AI apps, MCP functions like 'Swagger for AI Tools.' It allows developers to visually inspect and test tool schemas and execution via MCP Inspector with zero LLM API cost. It enforces process isolation (preventing DB crashes or leaks from taking down the agent) and eliminates rewrite costs if the orchestration framework changes."* | When asked to defend the architectural decision of using MCP versus simple in-memory function imports. |
+
+---
+
+*Note: This document is updated at the conclusion of every session with new interview questions, answers, and deployment scenarios discussed.*
