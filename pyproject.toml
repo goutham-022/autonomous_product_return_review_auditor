@@ -7,11 +7,28 @@ authors = [
     { name = "goutham", email = "imgoutham.022@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi>=0.163.0",
+    "langchain-core>=1.8.0",
+    "langchain-google-genai>=4.5.0",
+    "langgraph>=1.2.22",
+    "mcp>=2.3.0",
+    "pgvector>=0.5.1",
+    "psycopg[binary]>=3.3.9",
+    "pydantic-settings>=2.16.3",
+    "rank-bm25>=0.2.2",
+    "sqlalchemy>=2.1.8",
+    "sqlglot>=30.31.0",
+    "uvicorn[standard]>=0.54.0",
+]
 
-[project.scripts]
-autonomous-product-return-review-auditor = "autonomous_product_return_review_auditor:main"
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.5.0",
+]
