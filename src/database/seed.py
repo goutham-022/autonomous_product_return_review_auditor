@@ -1,5 +1,5 @@
 """
-Database Seeding Script for CartNest (Autonomous Product Return & Review Auditor).
+Database Seeding Script for Autonomous Product Return & Review Auditor.
 
 Populates PostgreSQL with curated synthetic test fixtures:
 - High-trust VIP Customers (Pooja Sharma)
@@ -33,7 +33,7 @@ def seed_database(reset: bool = False):
             print("💡 Tip: Run with seed_database(reset=True) or execute with '--reset' to re-seed.")
             return
 
-        print("🌱 Seeding Curated Synthetic Data for CartNest...")
+        print("🌱 Seeding Curated Synthetic Data for Return Auditor...")
 
         # ----------------------------------------------------------------------
         # 1. CUSTOMERS

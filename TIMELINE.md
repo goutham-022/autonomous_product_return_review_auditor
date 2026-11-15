@@ -40,8 +40,8 @@
 
 ### Step 2: Relational DB & Safe Text-to-SQL Engine (Days 5–8)
 - [x] **M2.0**: Enterprise Configuration & Secrets Management (`src/utils/configs.py` via Pydantic `BaseSettings`) ✅ (2026-11-15)
-- [ ] **M2.1**: Implement lean 4-table SQLAlchemy models (`customers`, `products`, `orders`, `returns`).
-- [ ] **M2.2**: Generate realistic synthetic e-commerce seed data (VIP customers, serial returners, batch defects).
+- [x] **M2.1**: Implement lean 4-table SQLAlchemy models (`customers`, `products`, `orders`, `returns`) and connection engine with pgvector init ✅ (2026-11-15)
+- [x] **M2.2**: Generate realistic synthetic e-commerce seed data (VIP customers, serial returners, batch defects) via `src/database/seed.py` ✅ (2026-11-15)
 - [ ] **M2.3**: Build Text-to-SQL engine with `sqlglot` AST validation (read-only enforcement, table whitelisting, limit injection).
 
 ### Step 3: Hybrid RAG & Review Mining Engine (Days 9–13)
@@ -79,7 +79,7 @@
 ---
 
 ## 3. Technical Notes & Milestone Log
-- **2026-11-13 (Day 1)**: Problem scoping with client *CartNest*. Core boundaries established for SQL, RAG, and MCP.
+- **2026-11-13 (Day 1)**: Problem scoping for enterprise retail client. Core boundaries established for SQL, RAG, and MCP.
 - **2026-11-14 (Day 2)**: First-principles deconstruction of Tools, MCP vs REST APIs, and MCP Inspector.
 - **2026-11-15 (Day 3)**: Co-designed 4-desk LangGraph waterfall, decision actions, and AI Safety specifications for `inspect_ai`. Fixed architecture visual preview with ASCII diagram. M0.1 and M0.2 completed.
 - **2026-11-15 (Day 4)**: Initialized `uv` virtual environment and dependency lockfile. Authored `docker-compose.yaml` with PostgreSQL 16 + pgvector container (`product_return_review_db` on port 5434). Implemented Pydantic v2 `BaseSettings` schema in `src/utils/configs.py` with fail-fast validation and type-safe casting. Configured `[tool.uv] package = false` for application execution mode. M0.3, M0.4, M1.1, and M2.0 completed ahead of schedule.

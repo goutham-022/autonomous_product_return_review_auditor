@@ -6,7 +6,7 @@ Let's understand MCP using **one concrete story** with zero buzzwords.
 
 ### The Story
 
-A customer named **Rahul** goes to CartNest chat and types:  
+A customer named **Rahul** goes to the customer support chat and types:  
 > *"Can I return my order ORD_101?"*
 
 ---
@@ -15,8 +15,8 @@ A customer named **Rahul** goes to CartNest chat and types:
 
 We have:
 1. **The AI Brain** (Claude or GPT-4).
-2. **CartNest Database** (Orders table).
-3. **CartNest MCP Server** (The bridge).
+2. **E-Commerce Database** (Orders table).
+3. **Tool MCP Server** (The bridge).
 
 ---
 
@@ -36,7 +36,7 @@ The AI sends a simple message to the MCP Server:
 
 #### Step 3: The MCP Server does the dirty work
 The MCP Server receives that message.  
-It connects to CartNest's database and finds:
+It connects to the orders database and finds:
 - **Order:** `ORD_101`
 - **Product:** Leather Jacket
 - **Delivered On:** 2 days ago

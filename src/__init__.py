@@ -1,1 +1,1 @@
-"""CartNest Autonomous Product Return & Review Auditor package."""
+"""Autonomous Product Return & Review Auditor package."""

@@ -1,6 +1,6 @@
 # Engineering Design Document: Autonomous Product Return & Review Auditor
 
-**System Name:** CartNest Autonomous Return & Review Auditor  
+**System Name:** Autonomous Product Return & Review Auditor  
 **Document Version:** 1.1 (Production Blueprint + AI Safety & Agentic Control)  
 **Target Environment:** Enterprise E-Commerce (FDE Track) & Technical Proof-of-Work for Anthropic AI Safety Fellows (`inspect_ai`)  
 
@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary & Business Problem
 
-CartNest is an enterprise e-commerce platform processing ₹1,500 Crores in annual gross merchandise value (GMV), but suffering an estimated ₹300 Crores in return losses (a ~20% return rate). 
+This system addresses high-volume enterprise e-commerce platforms processing ₹1,500 Crores in annual gross merchandise value (GMV), but suffering an estimated ₹300 Crores in return losses (a ~20% return rate). 
 
 The platform faces three major operational vulnerabilities:
 1. **Return Fraud & Policy Gaming:** Serial returners abusing return windows, "wardrobing" luxury wear, and submitting fabricated defect claims.
@@ -58,7 +58,7 @@ The platform is designed as a **decoupled 3-tier microservice architecture**, pr
                                             │ MCP Transport: HTTP / SSE (Port 8001)
                                             ▼
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                      MICROSERVICE 2: CARTNEST MCP TOOL SERVER (PORT 8001)               │
+│                      MICROSERVICE 2: TOOL & DATA MCP SERVER (PORT 8001)                 │
 │                                                                                         │
 │   [MCP Tools: query_order_db | search_policy_docs | get_review_defects | submit_audit]  │
 │   ├── SQLGlot AST Safety Parser & Table Whitelist Verification                          │
@@ -103,7 +103,7 @@ flowchart TD
     end
 
     %% Microservice 2
-    subgraph Microservice2["Microservice 2: CartNest MCP Tool Server (Port 8001)"]
+    subgraph Microservice2["Microservice 2: Tool & Data FastMCP Server (Port 8001)"]
         MCPServer["FastMCP Tool Microservice<br/>- query_order_db<br/>- search_policy_docs<br/>- get_product_review_defects<br/>- submit_decision_audit"]
     end
 
@@ -306,7 +306,7 @@ class ReturnAuditorState(TypedDict):
 ### B. Prompt Boundary Delimiters
 In all LLM prompt templates, untrusted user inputs are wrapped in strict structural delimiters:
 ```text
-SYSTEM: You are CartNest's Return Auditor. 
+SYSTEM: You are an Autonomous Return Auditor for an enterprise e-commerce platform. 
 Base your evaluation strictly on the trusted order context.
 
 <trusted_order_facts>
